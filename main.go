@@ -20,11 +20,14 @@ func main() {
 		go checkLink(link, c)
 	}
 
-	fmt.Println(<- c)
-	fmt.Println(<- c)
-	fmt.Println(<- c)
-	fmt.Println(<- c)
-	fmt.Println(<- c)
+	for i := 0; i < len(links); i++ {
+		//Esta linea es bloqueante
+		//Es por ello que se ejecuta en otro for distinto
+		//Si lo ejecutamos en el if de arriba las llamadas no serías concurrentes
+		//Porque esperaría a que terminase cada go func
+		//Antes de lanza la siguiente
+		fmt.Println(<- c)
+	}
 }
 
 func checkLink(link string, c chan string) {
