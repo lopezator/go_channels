@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"fmt"
+	"time"
 )
 
 func main() {
@@ -20,13 +21,22 @@ func main() {
 		go checkLink(link, c)
 	}
 
-	for i := 0; i < len(links); i++ {
+	/*for i := 0; i < len(links); i++ {
 		//Esta linea es bloqueante
 		//Es por ello que se ejecuta en otro for distinto
 		//Si lo ejecutamos en el if de arriba las llamadas no serías concurrentes
 		//Porque esperaría a que terminase cada go func
 		//Antes de lanza la siguiente
 		fmt.Println(<- c)
+	}*/
+
+	// Loop infinito, el primer argumento cuela como
+	// String al ser un canal de tipo string
+	for l := range c {
+		go func(link string) {
+			time.Sleep(5 * time.Second)
+			checkLink(link, c)
+		}(l)
 	}
 }
 
@@ -35,10 +45,10 @@ func checkLink(link string, c chan string) {
 
 	if err != nil {
 		fmt.Println(link, "might be down!")
-		c <- "Might be down I think"
+		c <- link
 		return
 	}
 
 	fmt.Println(link, "is up!")
-	c <- "yeah, is up!"
+	c <- link
 }
